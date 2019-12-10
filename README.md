@@ -24,3 +24,5 @@ Edit your travel plan inside `index.js` and run the following to inspect the pay
 If this looks fine you are ready to upload it:
 
     curl -d "requestJobDescription=$(node index.js)" 'https://integrations.expensify.com/Integration-Server/ExpensifyIntegrations'
+
+Following a successful request Expensify reports back the uploaded entries as JSON. In an error it returns a meaningful error message.

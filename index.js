@@ -42,7 +42,6 @@ const Travel = (account, startDate, ...perDiems) => {
     ]);
 };
 
-
 const CreateExpenses = expenses => (
     {
         type: "create",
