@@ -1,13 +1,23 @@
 const category = "Per Diem/Stipend (pre-approved)";
 
+// https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Lohnsteuer/2018-11-28-steuerliche-behandlung-reisekosten-reisekostenverguetungen-2019.pdf?__blob=publicationFile&v=2
+const fullDayAmount = 4000;
+const arrivalDepartureDayAmount = 2700;
+
 const FD = (...offsets) => ({
-    multiplier: 1,
+    amount: fullDayAmount,
     label: "Full Day",
     offsets: offsets
 });
 
+const ADD = (...offsets) => ({
+    amount: arrivalDepartureDayAmount,
+    label: "Arrival/Departure Day",
+    offsets: offsets
+});
+
 const BreakfastPaid = () => ({
-    multiplier: -0.2,
+    amount: -0.2 * fullDayAmount,
     label: "Breakfast paid"
 });
 
@@ -22,16 +32,16 @@ const datePlusDays = (d, offset) => new Date(d.getFullYear(), d.getMonth(), d.ge
 const dateToS = d => d.toISOString().replace(/T.*/, '');
 
 const perDiemToExpensify = (perDiem, date, account) => ({
-    merchant: `${Math.sign(perDiem.multiplier)} * ${account.label} ${perDiem.label} @ ${currencyFormat(Math.sign(perDiem.multiplier) * perDiem.multiplier * account.fullDayInCents / 100, account.currency)}`,
+    merchant: `${Math.sign(perDiem.amount)} * ${account.label} ${perDiem.label} @ ${currencyFormat(Math.sign(perDiem.amount) * perDiem.amount / 100, account.currency)}`,
     created: dateToS(date),
-    amount: perDiem.multiplier * account.fullDayInCents,
+    amount: perDiem.amount,
     currency: account.currency,
     comment: account.comment,
     category: category,
     tag: account.tag
 });
 
-const Account = (label, fullDayInCents, currency, comment, tag) => ({label, fullDayInCents, currency, comment, tag});
+const Account = (label, currency, comment, tag) => ({label, currency, comment, tag});
 
 const Travel = (account, startDate, ...perDiems) => {
     const date = new Date(Date.parse(startDate));
@@ -62,15 +72,15 @@ const print = o => console.log(JSON.stringify(o));
 print(
     CreateExpenses(
         Travel(
-            Account("Madrid", 4000, "EUR", "ThoughtWorks Madrid, Travel from 14.10. to 20.10.2019", "Some Project Code:Travel"),
+            Account("Madrid", "EUR", "ThoughtWorks Madrid, Travel from 14.10. to 20.10.2019", "Some Project Code:Travel"),
             '2019-10-14',
-            FD(BreakfastPaid()), // Day 1
+            ADD(BreakfastPaid()), // Day 1
             FD(BreakfastPaid()), // Day 2
             FD(BreakfastPaid()), // Day 3
             FD(BreakfastPaid()), // Day 4
             FD(BreakfastPaid()), // Day 5
             FD(), // Day 6
-            FD(), // Day 7
+            ADD(), // Day 7
         )
     )
 );
